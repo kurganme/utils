@@ -4,8 +4,10 @@
 ##                "docker_" + SSH_HOST + ".sock"
 ## DOCKER_API_VERSION := "1.37"
 ## DOCKER_BUILDKIT := "0"
+##
 ## import 'res/docker.just'
-## $ curl -OL https://github.com/kurganme/misc/
+##
+## $ curl -OLf https://raw.githubusercontent.com/kurganme/utils/main/docker.just
 ##
 
 services := ""
