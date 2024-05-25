@@ -105,7 +105,7 @@ push-volumes:
         for i in {{services}}; do \
             set -- "$@" -or -wholename "volumes/$i-*"; \
         done; shift; set -- \( "$@" \); fi && \
-    find volumes -mindepth 1 -maxdepth 1 -type d "$@" -printf '%f\0' | \
+    find volumes -mindepth 1 -maxdepth 1 -type d "$@" \! -name '.*' -printf '%f\0' | \
     xargs -0I{} -- rsync \
         -via --delete --numeric-ids --rsh `\
             `"/bin/sh -c 'v=\"\$1\" && shift && `\
