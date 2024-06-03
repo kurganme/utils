@@ -11,10 +11,11 @@ docker-connect-ssh *args:
     @# systemctl --user daemon-reload
     @if [ "${DOCKER_HOST#unix://}" = "$DOCKER_HOST" ]; then \
         printf >&2 'error: bad DOCKER_HOST value\n' && exit 1; fi && \
-    S="$(readlink -f {{quote(join(justfile_directory(), \
-         trim_start_match(DOCKER_HOST, "unix://")))}})" && \
+    S={{quote(clean(join(absolute_path(justfile_directory()), \
+         trim_start_match(DOCKER_HOST, "unix://"))))}} && \
     U="$(systemd-escape --path --template docker_sock_forward@.service \
                         -- "$S")" && \
+    mkdir -p "$(dirname "$S")" && \
     set -- -- ssh -o StreamLocalBindUnlink=yes \
         -o ExitOnForwardFailure=yes \
         -L "$S":/run/docker.sock \
@@ -25,7 +26,6 @@ docker-connect-ssh *args:
     { systemctl --user reset-failed "$U" 2>/dev/null || true; } && \
     set -- systemd-run --user --property=Restart=always --unit="$U" \
         --description='docker sock forward for '{{quote(args)}} "$@" && \
-    mkdir -p "$(dirname "$S")" && \
     printf "%q " "$@" && printf '\b\n' && "$@" && \
     while ! docker info >/dev/null 2>&1; do sleep 1 && echo .; done && \
     just docker-show-server-name
@@ -37,8 +37,8 @@ docker-connect-ssh *args:
 docker-disconnect-ssh:
     @if [ "${DOCKER_HOST#unix://}" = "$DOCKER_HOST" ]; then \
         printf >&2 'error: bad DOCKER_HOST value\n' && exit 1; fi && \
-    S="$(readlink -f {{quote(join(justfile_directory(), \
-         trim_start_match(DOCKER_HOST, "unix://")))}})" && \
+    S={{quote(clean(join(absolute_path(justfile_directory()), \
+         trim_start_match(DOCKER_HOST, "unix://"))))}} && \
     U="$(systemd-escape --path --template docker_sock_forward@.service \
                         -- "$S")" && \
     systemctl --user stop "$U"
