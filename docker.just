@@ -100,6 +100,7 @@ compose *args:
 # Upload volumes content
 push-volumes:
     @prj_name="$(docker compose config --format json | jq -r .name)" && \
+    if [ -z "$prj_name" ]; then exit 1; fi && \
     set -- && \
     if [ "$services" ]; then \
         for i in {{services}}; do \
