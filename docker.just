@@ -27,51 +27,69 @@ enter_opts := ""
 diff_opts := ""
 
 # Build or rebuild services
+[group('docker')]
 build:
     docker compose build {{build_opts}} -- {{services}}
 
+# Build or rebuild services in debug mode
+[group('docker')]
+build-debug:
+    BUILDKIT_PROGRESS=plain \
+    docker compose build --no-cache {{build_opts}} -- {{services}}
+
 # Create and start containers
+[group('docker')]
 up:
     docker compose up {{up_opts}} -- {{services}}
 
 # Stop and remove containers, networks
+[group('docker')]
 down:
     docker compose down {{down_opts}} -- {{services}}
 
 # Start services
+[group('docker')]
 start:
     docker compose start {{start_opts}} -- {{services}}
 
 # Stop services
+[group('docker')]
 stop:
     docker compose stop {{stop_opts}} -- {{services}}
 
 # Restart service containers
+[group('docker')]
 restart:
     docker compose restart {{restart_opts}} -- {{services}}
 
 # Removes stopped service containers
+[group('docker')]
 rm:
    docker compose rm {{rm_opts}} -- {{services}}
 
 # List containers
+[group('docker')]
 ps:
     docker compose ps {{ps_opts}} -- {{services}}
 
 # Display the running processes
+[group('docker')]
 top:
     docker compose top {{top_opts}} -- {{services}}
 
 # Display a live stream of container(s) resource usage statistics
+[group('docker')]
 stats:
     docker compose stats {{stats_opts}} -- {{services}}
 
 # View output from containers
+[group('docker')]
 logs:
     docker compose logs {{logs_opts}} -- {{services}}
 
 # Enter in a running service container
 [no-exit-message]
+[group('docker')]
 enter:
     @docker compose exec {{enter_opts}} -- "$(\
         if [ "$services" ]; then \
@@ -82,6 +100,7 @@ enter:
         cd; [ -x /bin/bash ] && exec /bin/bash -l; exec /bin/sh -l'
 
 # Inspect changes to files or directories on a service container's filesystem
+[group('docker')]
 diff:
     @prj_name="$(docker compose config --format json | jq -r .name)" && \
     set -- {{services}}; \
@@ -90,14 +109,17 @@ diff:
         docker diff {{diff_opts}} "$prj_name"-"$i" | sort -bk2; done
 
 # Launch a generic docker command
+[group('docker')]
 docker *args:
     @docker "$@"
 
 # Launch a generic docker compose command
+[group('docker')]
 compose *args:
     @docker compose "$@"
 
 # Upload volumes content
+[group('docker')]
 push-volumes:
     @prj_name="$(docker compose config --format json | jq -r .name)" && \
     if [ -z "$prj_name" ]; then exit 1; fi && \
